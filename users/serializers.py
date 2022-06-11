@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # For creating users we must hash their password before storing
         user = super(UserSerializer, self).create(validated_data)
+        user.is_active = True
         user.set_password(validated_data['password'])
         user.save()
         return user

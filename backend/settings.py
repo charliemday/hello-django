@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'django_extensions',
     # Local Apps
     "users",
+    "teams",
+    "links"
 ]
 
 MIDDLEWARE = [
