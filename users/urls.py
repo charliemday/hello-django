@@ -1,11 +1,8 @@
-from django.urls import path, include
-from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework.authtoken.views import obtain_auth_token
-from django.views.decorators.csrf import csrf_exempt
+from django.urls import path
 
-from .views import SignupView
+from .views import SignupView, LoginView
 
 urlpatterns = [
-    path("login/", obtain_auth_token, name="login"),
+    path("login/", LoginView.as_view(), name="login"),
     path("signup/", SignupView.as_view(), name="signup")
 ]

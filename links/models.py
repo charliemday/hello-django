@@ -6,6 +6,14 @@ from teams.models import Team
 
 # Create your models here.
 
+class LogoImage(TimeStampedModel):
+
+    image = models.ImageField(upload_to='logo_images')
+
+    domain = models.CharField(max_length=200)
+
+    def __str__(self) -> str:
+        return self.domain
 
 class Link(TimeStampedModel):
 
@@ -19,5 +27,10 @@ class Link(TimeStampedModel):
 
     team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True, blank=True)
 
+    logo = models.ForeignKey(LogoImage, on_delete=models.CASCADE, null=True, blank=True)
+
     def __str__(self):
         return self.name
+
+
+

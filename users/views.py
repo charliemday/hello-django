@@ -5,9 +5,13 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.authtoken.views import ObtainAuthToken
 
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LoginSerializer
+
+class LoginView(ObtainAuthToken):
+    serializer_class = LoginSerializer
 
 class SignupView(CreateAPIView):
     permission_classes = (AllowAny,)

@@ -23,14 +23,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "changemeplease")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'PRODUCTION' not in os.environ
+DEBUG = "PRODUCTION" not in os.environ
 if not DEBUG:
     PROD = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost"]
 
-EXTERNAL_HOSTNAME = os.environ.get('EXTERNAL_HOSTNAME')
-if EXTERNAL_HOSTNAME:   
+EXTERNAL_HOSTNAME = os.environ.get("EXTERNAL_HOSTNAME")
+if EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(EXTERNAL_HOSTNAME)
 
 
@@ -48,18 +48,21 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third Party Apps
     "rest_framework",
-    'rest_framework.authtoken',
-    'django_extensions',
+    "rest_framework.authtoken",
+    "django_extensions",
+    "corsheaders",
+    "storages",
     # Local Apps
     "users",
     "teams",
-    "links"
+    "links",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -68,11 +71,12 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         # Uncomment for desired authentication method
         # 'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication'
+        # 'django.contrib.auth.backends.ModelBackend',
+        "rest_framework.authentication.TokenAuthentication"
     ]
 }
 
@@ -163,13 +167,40 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
-if not DEBUG:    
-    # Tell Django to copy statics to the `staticfiles` directory
-    # in your application directory in production
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Turn on WhiteNoise storage backend that takes care of compressing static files
-    # and creating unique names for each version so they can safely be cached forever.
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+print(MEDIA_ROOT)
+
+# AWS Credentials
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'static'
+
+
+if not DEBUG:
+    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory in production
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    # For media files, use the default Django storage backend.
+    # DEFAULT_FILE_STORAGE = 'backend.storage.MediaStorage' 
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+CORS_ALLOWED_ORIGINS = [
+    # TODO: Add the frontend URL here
+]
+
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+BRANDFETCH_API_TOKEN = os.environ.get("BRANDFETCH_API")
+
+
