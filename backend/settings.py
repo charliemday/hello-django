@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -104,34 +105,30 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# SQLite Database Setup
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
-
-
 # PostGreSQL Database Setup
-
-# if PROD:
-#     DATABASES = {}
-#     db_from_env = dj_database_url.config(conn_max_age=300, ssl_require=True)
-#     DATABASES["default"] = db_from_env
-# else:
-#     # PostgreSQL Config
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.postgresql_psycopg2",
-#             "NAME": os.environ.get("DB_NAME", ""),
-#             "USER": os.environ.get("DB_USER", ""),
-#             "PASSWORD": os.environ.get("DB_PASS", ""),
-#             "HOST": "localhost",
-#             "PORT": "5432",
-#         }
-#     }
+if PROD:
+    DATABASES = {}
+    db_from_env = dj_database_url.config(conn_max_age=300, ssl_require=True)
+    DATABASES["default"] = db_from_env
+else:
+    # SQLite Database Setup
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        }
+    }
+    # PostgreSQL Config
+    # DATABASES = {
+    #     "default": {
+    #         "ENGINE": "django.db.backends.postgresql_psycopg2",
+    #         "NAME": os.environ.get("DB_NAME", ""),
+    #         "USER": os.environ.get("DB_USER", ""),
+    #         "PASSWORD": os.environ.get("DB_PASS", ""),
+    #         "HOST": "localhost",
+    #         "PORT": "5432",
+    #     }
+    # }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
