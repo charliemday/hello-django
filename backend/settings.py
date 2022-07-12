@@ -25,8 +25,13 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "changemeplease")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = "PRODUCTION" not in os.environ
+PROD = False
+
 if not DEBUG:
+    print("[INFO] We are in PRODUCTION mode")
     PROD = True
+else:
+    print("[INFO] We are in DEBUG mode")
 
 ALLOWED_HOSTS = ["localhost"]
 
@@ -166,8 +171,6 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-print(MEDIA_ROOT)
 
 # AWS Credentials
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
