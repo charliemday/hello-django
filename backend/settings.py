@@ -206,7 +206,7 @@ if not DEBUG:
     # STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
     # Turn on WhiteNoise storage backend that takes care of compressing static files
     # and creating unique names for each version so they can safely be cached forever.
-    # STATICFILES_STORAGE = "whi tenoise.storage.CompressedManifestStaticFilesStorage"
+    # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
     # For media files, use the default Django storage backend.
     # DEFAULT_FILE_STORAGE = 'backend.storage.MediaStorage' 
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
