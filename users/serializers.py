@@ -1,60 +1,11 @@
-from django.contrib.auth import authenticate
+import uuid
+
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import check_password
 
 from rest_framework import serializers
 
 from .models import User
-
-
-import inspect
-from django.conf import settings
-from django.utils.module_loading import import_string
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-
-
-def load_backend(path):
-    return import_string(path)()
-
-
-def _get_backends(return_tuples=False):
-    backends = []
-    for backend_path in settings.AUTHENTICATION_BACKENDS:
-        backend = load_backend(backend_path)
-        backends.append((backend, backend_path) if return_tuples else backend)
-    if not backends:
-        raise ImproperlyConfigured(
-            'No authentication backends have been defined. Does '
-            'AUTHENTICATION_BACKENDS contain anything?'
-        )
-    return backends
-
-def _authenticate(request=None, **credentials):
-    """
-    If the given credentials are valid, return a User object.
-    """
-    for backend, backend_path in _get_backends(return_tuples=True):
-        try:
-            inspect.getcallargs(backend.authenticate, request, **credentials)
-        except TypeError:
-            # This backend doesn't accept these credentials as arguments. Try the next one.
-            continue
-        try:
-            user = backend.authenticate(request, **credentials)
-        except PermissionDenied:
-            # This backend says to stop in our tracks - this user should not be allowed in at all.
-            break
-        if user is None:
-            continue
-        # Annotate the user object with the path of the backend.
-        user.backend = backend_path
-        return user
-
-    # The credentials supplied are invalid to all backends, fire signal
-    # user_login_failed.send(sender=__name__, credentials=_clean_credentials(credentials), request=request)
-
-
-
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(label=_("Email"))
@@ -91,23 +42,36 @@ class LoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(min_length=6, write_only=True, required=True)
+    username = serializers.CharField(required=False, read_only=True)
 
     def validate(self, data):
-        username = data.get("username")
-        if username:
-            # Check if username already exists
-            if User.objects.filter(username=username).exists():
-                raise serializers.ValidationError("That username is already in use")
+        email = data.get("email")
+        if email:
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                raise serializers.ValidationError("That email is already in use")
         return data
 
     def create(self, validated_data):
-        # For creating users we must hash their password before storing
+
+        # Set the username server-side
+        validated_data["username"] = uuid.uuid4()
+
         user = super(UserSerializer, self).create(validated_data)
         user.is_active = True
+
+        # For creating users we must hash their password before storing
         user.set_password(validated_data['password'])
         user.save()
         return user
 
     class Meta:
         model = User
-        fields = "__all__"
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "password",
+        )

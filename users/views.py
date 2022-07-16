@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.views import APIView
 
 from .models import User
 from .serializers import UserSerializer, LoginSerializer
@@ -26,3 +27,9 @@ class SignupView(CreateAPIView):
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+
+class UserDetailsView(APIView):
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data)

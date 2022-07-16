@@ -15,6 +15,7 @@ class LinksSerializer(serializers.ModelSerializer):
     class Meta:
         model = Link
         fields = (
+            "id",
             "name",
             "description",
             "url",
