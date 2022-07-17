@@ -8,11 +8,13 @@ from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.views import APIView
 
-from .models import User
+from .models import User, UserFeedback
 from .serializers import UserSerializer, LoginSerializer
+
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
+
 
 class SignupView(CreateAPIView):
     permission_classes = (AllowAny,)
@@ -28,8 +30,24 @@ class SignupView(CreateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
 
+
 class UserDetailsView(APIView):
     def get(self, request):
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
+
+
+class UserFeedbackView(APIView):
+    def post(self, request):
+        user = request.user
+        feedback = request.data.get("feedback")
+        if feedback:
+            UserFeedback.objects.create(user=user, feedback=feedback)
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={"error": "Feedback is required"},
+            )
+
