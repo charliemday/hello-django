@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from beaconclient.beacon import Beacon
 
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from .models import User, UserFeedback
 from .serializers import UserSerializer, LoginSerializer
 
+client = Beacon("ee9d0af7825df4462cd563239876c6f8")
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer
@@ -26,6 +27,9 @@ class SignupView(CreateAPIView):
         if serializer.is_valid():
             user = serializer.save()
             token, _ = Token.objects.get_or_create(user=user)
+            client.send(
+                {"message": "{} signed up 🎉!".format(user.email), "channel": "user-signup"}
+            )
             return Response({"token": token.key}, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
@@ -44,6 +48,12 @@ class UserFeedbackView(APIView):
         feedback = request.data.get("feedback")
         if feedback:
             UserFeedback.objects.create(user=user, feedback=feedback)
+            client.send(
+                {
+                    "message": "(Feedback) {}".format(feedback),
+                    "channel": "user-feedback",
+                }
+            )
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(
