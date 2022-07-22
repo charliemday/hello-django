@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 
@@ -15,6 +16,19 @@ class LogoImage(TimeStampedModel):
     def __str__(self) -> str:
         return self.domain
 
+class Category(TimeStampedModel):
+
+    name = models.CharField(max_length=200)
+
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+        verbose_name = 'Category'
+
+    def __str__(self):
+        return self.name
+
 class Link(TimeStampedModel):
 
     name = models.CharField(max_length=200)
@@ -29,8 +43,8 @@ class Link(TimeStampedModel):
 
     logo = models.ForeignKey(LogoImage, on_delete=models.CASCADE, null=True, blank=True)
 
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+
     def __str__(self):
         return self.name
-
-
 

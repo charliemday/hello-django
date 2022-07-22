@@ -17,5 +17,20 @@ class Team(TimeStampedModel):
 
     is_active = models.BooleanField(default=True)
 
+    # TODO: Link users to teams
+
     def __str__(self):
         return self.name
+
+
+
+class TeamMember(TimeStampedModel):
+
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.user.username 

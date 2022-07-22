@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Team
+from .models import Team, TeamMember
 from .serializers import TeamSerializer
 
 # Create your views here.
@@ -31,6 +31,9 @@ class TeamView(ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
+        # Additionally create first team member which will be this user
+        TeamMember.objects.create(team=serializer.instance, user=user)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -44,8 +47,12 @@ class RetrieveUpdateDestroyTeamView(RetrieveUpdateDestroyAPIView):
         return teams
 
     def delete(self, request, *args, **kwargs):
-        team = self.get_object()
-        team.is_active = False
-        team.save()
+        if self.get_object().created_by != self.request.user:
+            return Response(
+                {"message": "You cannot delete this team"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        team = self.get_object()
+        team.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
