@@ -1,4 +1,5 @@
 from beaconclient.beacon import Beacon
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
@@ -11,7 +12,7 @@ from rest_framework.views import APIView
 from .models import User, UserFeedback
 from .serializers import UserSerializer, LoginSerializer
 
-client = Beacon("ee9d0af7825df4462cd563239876c6f8")
+client = Beacon("ee9d0af7825df4462cd563239876c6f8", debug=settings.DEBUG)
 
 class LoginView(ObtainAuthToken):
     serializer_class = LoginSerializer

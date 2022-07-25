@@ -27,7 +27,7 @@ class ListCreateLinksView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        links = Link.objects.filter(Q(team__members=user) | Q(created_by=user))
+        links = Link.objects.filter(Q(team__team_members__user=user))
         return links
 
     def get(self, request, *args, **kwargs):
@@ -47,9 +47,9 @@ class ListCreateLinksView(ListCreateAPIView):
 
         team = get_object_or_404(Team, pk=request.data.get("team"))
 
-        if not team.members.filter(pk=user.pk).exists():
+        if not team.team_members.filter(user=user.pk).exists():
             return Response(
-                {"message": "You must be part of the team to create links"},
+                {"message": "You must be part of the team to create links hello"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -106,7 +106,7 @@ class RetrieveUpdateDestroyLinkView(RetrieveUpdateDestroyAPIView):
     serializer_class = LinksSerializer
 
     def get_queryset(self):
-        links = Link.objects.filter(team__members=self.request.user)
+        links = Link.objects.filter(team__team_members__user=self.request.user)
         return links
 
     def destroy(self, request, *args, **kwargs):
@@ -114,7 +114,7 @@ class RetrieveUpdateDestroyLinkView(RetrieveUpdateDestroyAPIView):
 
         team = instance.team
 
-        if team.members.filter(pk=self.request.user.pk).exists():
+        if team.team_members.filter(user=self.request.user.pk).exists():
             id = instance.pk
             self.perform_destroy(instance)
             return Response({"id": id}, status=status.HTTP_200_OK)
@@ -132,22 +132,22 @@ class ListCreateCategoriesView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        categories = Category.objects.filter(team__members=user)
+        categories = Category.objects.filter(team__team_members__user=user)
         return categories
 
     def get(self, request, *args, **kwargs):
         team_param = request.GET.get("team")
-        if team_param is None:
-            return Response(
-                {"message": "You must specify a team"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if team_param:
+            qs = Category.objects.filter(team=team_param)
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         return super().get(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         user = request.user
         team = get_object_or_404(Team, pk=request.data.get("team"))
-        if team.members.filter(pk=user.pk).exists():
+        if team.team_members.filter(user=user.pk).exists():
             return super().create(request, *args, **kwargs)
         else:
             return Response(
@@ -163,14 +163,14 @@ class RetrieveUpdateDestroyCategoryView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        categories = Category.objects.filter(team__members=user)
+        categories = Category.objects.filter(team__team_members__user=user)
         return categories
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         team = instance.team
 
-        if team.members.filter(pk=self.request.user.pk).exists():
+        if team.team_members.filter(user=self.request.user.pk).exists():
             id = instance.pk
             self.perform_destroy(instance)
             return Response({"id": id}, status=status.HTTP_200_OK)
