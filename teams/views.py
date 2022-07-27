@@ -12,7 +12,7 @@ from rest_framework import status
 from .models import Team, TeamMember, TeamInvite
 from .serializers import TeamSerializer, TeamInviteSerializer, TeamMemberSerializer
 
-from .utils import send_simple_message
+from .utils import send_invite
 
 # Create your views here.
 
@@ -125,15 +125,13 @@ class TeamInviteView(CreateAPIView):
 
         email = data.get("email")
 
-        print("=======")
-        print("[FAKE] Sending invite to:", email)
-        send_simple_message(email)
-        print("=======")
-
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
+        token = serializer.instance.token
+        send_invite(email, token)
+    
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class AcceptTeamInvite(APIView):
