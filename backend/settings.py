@@ -75,9 +75,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "storages",
     # Local Apps
-    "users",
-    "teams",
-    "links",
+    "users"
 ]
 
 MIDDLEWARE = [

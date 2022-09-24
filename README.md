@@ -5,23 +5,38 @@
 
 A starter repo for a backend webservice with the following features:
 
-- Basic Authentication for users
-- Token authentication
-- APIs for `/signup` and `/login`
+##### 🎉 Basic Authentication for users
+##### 🎉 Token authentication
+##### 🎉 APIs for `/signup` and `/login`
+##### 🎉 Connected to S3 for file storage
 
 ## Setup
 
-Run `git clone`
+To get setup follow the steps:
 
-Run `pip install -r requirements.txt`
+1. Run `git clone <THIS_REPO_URL>`
 
-Run `./manage.py migrate`
+This will get the repo on your local machine.
 
-Run `./manage.py runserver`
+2. Run `pip install -r requirements.txt`
+
+This will install all the dependencies.
+
+3. Run `./manage.py migrate`
+
+This will create the database and run all the migrations (in `DEBUG` mode we use SQLite while in Prod we use PostGreSQL configurable in the settings file).
+
+4. Run `./manage.py runserver`
+
+This will start the server on `localhost:8000`
+
+5. Run `./manage.py createsuperuser`
+
+This will create a superuser for the admin panel.
 
 Once running the server you can use Postman (https://www.postman.com/) to explore the API URLs prefixed with `http://localhost:8000/api`
 
-**Current API**
+## Current APIs
 
 `/login/`
 
