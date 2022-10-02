@@ -39,7 +39,6 @@ EXTERNAL_HOSTNAME = os.environ.get("EXTERNAL_HOSTNAME")
 if EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(EXTERNAL_HOSTNAME)
 
-
 # Logging
 LOGGING = {
     'version': 1,
@@ -206,8 +205,18 @@ if not DEBUG:
     # and creating unique names for each version so they can safely be cached forever.
     # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
     # For media files, use the default Django storage backend.
+
+    # AWS S3 Storage
     # DEFAULT_FILE_STORAGE = 'backend.storage.MediaStorage' 
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
     # TODO: Add the frontend URL here
